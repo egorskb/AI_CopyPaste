@@ -27,7 +27,7 @@ The script will keep running in the background, checking your clipboard for cont
 
 The AI-generated response will be copied back to your clipboard, prefixed with "AI Response:".
 
-##Customization
+## Customization
 You can customize the script's behavior by modifying the following variables and parameters:
 
 TRIGGER_KEYWORD: Change the keyword that activates the script.
