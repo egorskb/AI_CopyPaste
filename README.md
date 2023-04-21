@@ -1,6 +1,6 @@
-# AI Clipboard Manager
+# AI CopyPaste
 
-The AI Clipboard Manager is a Python-based desktop application that uses OpenAI's GPT-3 language model to answer questions and provide responses in real-time.
+The AI CopyPaste is a Python-based desktop application that uses OpenAI's GPT-3 language model to answer questions and provide responses in real-time.
 
 ## Features
 
@@ -11,7 +11,7 @@ The AI Clipboard Manager is a Python-based desktop application that uses OpenAI'
 
 ## Installation
 
-The AI Clipboard Manager requires Python 3 and several Python packages to run. To simplify the installation process, we've provided separate installation scripts for Windows and Mac users. Follow the instructions below to install the AI Clipboard Manager on your operating system:
+The AI CopyPaste requires Python 3 and several Python packages to run. To simplify the installation process, I've provided separate installation scripts for Windows and Mac users. Follow the instructions below to install the AI CopyPaste on your operating system:
 
 ### Windows
 
@@ -25,12 +25,12 @@ The AI Clipboard Manager requires Python 3 and several Python packages to run. T
 
 and pressing Enter 4. Wait for the installation to complete
 
-The installation software will create a virtual environment for the AI Clipboard Manager and install all required Python packages automatically. Once the installation is complete, the AI Clipboard Manager will run automatically.
+The installation software will create a virtual environment for the AI CopyPaste and install all required Python packages automatically. Once the installation is complete, the AI CopyPaste will run automatically.
 
 ### Mac or Linux
 
 1. Open Terminal
-2. Navigate to the directory where you've saved the AI Clipboard Manager code
+2. Navigate to the directory where you've saved the AI CopyPaste code
 3. Run the mac.sh script by typing
 
 ```bash
@@ -46,7 +46,7 @@ The AI-generated response will be copied back to your clipboard, prefixed with "
 ## Customization
 You can customize the script's behavior by modifying the following variables and parameters in settings menu:
 
-- API: Set the OpenAI API to get access for ChatGPT
+- API: Set the OpenAI API to get access for ChatGPT (you need to have an [API-key](https://platform.openai.com/account/api-keys))
 - temperature: Adjust the randomness of the AI-generated response.
 - max_tokens: Set the maximum length of the AI-generated response.
 
@@ -56,13 +56,13 @@ You can customize the script's behavior by modifying the following variables and
 2. Copy the following text to the clipboard:
 
 ```text
-? What is the capital city of France?
+? How to print hello world in python?
 ```
 
 The AI-generated response will be copied to your clipboard:
 
 ```text
-! The capital city of France is Paris.
+! print('hello world').
 ```
 
 ## Disclaimer
