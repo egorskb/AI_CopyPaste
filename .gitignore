@@ -13,3 +13,4 @@ venv/
 # Ignore the first version of AI Clipboard Manager
 .AI_Clipboard_Assistant.py
 .DS_Store
+.gitignore
