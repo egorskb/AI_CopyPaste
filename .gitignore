@@ -10,7 +10,7 @@ logs/
 # Ignore the "venv" directory
 venv/
 
-# Ignore the first version of AI Clipboard Manager
-.AI_Clipboard_Assistant.py
+# Ignore useless files
 .DS_Store
 .gitignore
+settings.json

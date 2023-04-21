@@ -1,26 +1,25 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import filedialog
+import pyperclip
 
-history_data = []
 
-
-def update_gui_history(question, answer):
+def update_gui_history(history_box, history_data, question, answer, search_var):
     history_text = f"Q: {question}\nA: {answer}\n\n"
     history_data.append((question, answer))
-    filter_history()
+    filter_history(history_box, history_data, search_var)
     history_box.config(state='normal')
     history_box.insert(tk.END, history_text)
     history_box.config(state='disabled')
 
 
-def clear_history():
+def clear_history(history_box, history_data):
     history_box.config(state='normal')
     history_box.delete(1.0, tk.END)
     history_box.config(state='disabled')
     history_data.clear()
 
 
-def filter_history(event=None, *args):
+def filter_history(history_box, history_data, search_var, event=None, *args):
     search_query = search_var.get().lower()
     history_box.delete(1.0, tk.END)
 
@@ -30,7 +29,7 @@ def filter_history(event=None, *args):
             history_box.insert(tk.END, history_text)
 
 
-def export_history():
+def export_history(history_data):
     file_name = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[
                                              ("Text Files", "*.txt"), ("All Files", "*.*")])
     if file_name:
@@ -39,7 +38,7 @@ def export_history():
                 f.write(f"Q: {q}\nA: {a}\n\n")
 
 
-def import_history():
+def import_history(history_box, history_data):
     file_name = filedialog.askopenfilename(
         filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
     if file_name:
@@ -60,7 +59,7 @@ def import_history():
                     q, a = "", ""
 
 
-def copy_question_to_clipboard(event):
+def copy_question_to_clipboard(history_box):
     selected_text = history_box.selection_get()
     lines = selected_text.split("\n")
     for line in lines:
