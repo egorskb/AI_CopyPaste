@@ -25,13 +25,13 @@ The AI Clipboard Manager requires Python 3 and several Python packages to run. T
 
 and pressing Enter 4. Wait for the installation to complete
 
-The installation script will create a virtual environment for the AI Clipboard Manager and install all required Python packages automatically. Once the installation is complete, the AI Clipboard Manager will run automatically.
+The installation software will create a virtual environment for the AI Clipboard Manager and install all required Python packages automatically. Once the installation is complete, the AI Clipboard Manager will run automatically.
 
 ### Mac or Linux
 
 1. Open Terminal
 2. Navigate to the directory where you've saved the AI Clipboard Manager code
-3. Run the install-mac.sh script by typing
+3. Run the mac.sh script by typing
 
 ```bash
 ./mac.sh
@@ -39,12 +39,12 @@ The installation script will create a virtual environment for the AI Clipboard M
 
 and pressing Enter 4. Wait for the installation to complete
 
-The script will keep running in the background, checking your clipboard for content changes. To generate a response from the AI model, copy text containing the trigger keyword (e.g., ##ask). The script will send the text without the keyword to the OpenAI API.
+The software will keep running in the background, checking your clipboard for content changes. To generate a response from the AI model, copy text containing the trigger keyword "?". The script will send the text without the keyword to the OpenAI API.
 
 The AI-generated response will be copied back to your clipboard, prefixed with "AI Response:".
 
-##Customization
-You can customize the script's behavior by modifying the following variables and parameters:
+## Customization
+You can customize the script's behavior by modifying the following variables and parameters in settings menu:
 
 - API: Set the OpenAI API to get access for ChatGPT
 - temperature: Adjust the randomness of the AI-generated response.
