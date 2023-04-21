@@ -43,13 +43,8 @@ The script will keep running in the background, checking your clipboard for cont
 
 The AI-generated response will be copied back to your clipboard, prefixed with "AI Response:".
 
-The installation script will create a virtual environment for the AI Clipboard Manager and install all required Python packages automatically. Once the installation is complete, the AI Clipboard Manager will run automatically.
-
-If you encounter any issues during the installation process, please refer to the troubleshooting section in this document or open an issue on our GitHub repository.
-
-## Customization
-
-You can customize the software's behavior by modifying the settings.json:
+##Customization
+You can customize the script's behavior by modifying the following variables and parameters:
 
 - API: Set the OpenAI API to get access for ChatGPT
 - temperature: Adjust the randomness of the AI-generated response.
