@@ -1,1 +1,14 @@
-"my_api.txt"
+# Ignore testing
+testing/
+
+# ignore python cache
+__pycache__/
+
+# Ignore the "logs" directory
+logs/
+
+# Ignore the "venv" directory
+venv/
+
+# Ignore the first version of AI Clipboard Manager
+.AI_Clipboard_Assistant.py
