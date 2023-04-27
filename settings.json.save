@@ -1,0 +1,6 @@
+{
+    "temperature": 0.2,
+    "max_tokens": 50,
+    "use_history": false,
+    "api_key": "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"
+}
