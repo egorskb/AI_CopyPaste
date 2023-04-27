@@ -30,6 +30,41 @@ def detect_command(text):
         return "question"
     return None
 
+# New function to handle clipboard updates in the background
+
+
+def clipboard_handler(clipboard_data):
+    command = detect_command(clipboard_data)
+    if command == "question":
+        question = clipboard_data[1:]
+        answer = ask_openai(question)
+        pyperclip.copy(answer)
+        add_to_history(question, answer)
+
+# New function to add clipboard data to the history
+
+
+def add_to_history(question, answer):
+    current_category = selected_category.get()
+    categories[current_category].append((question, answer))
+    update_gui_history(history_box, history_data, question, answer, search_var)
+
+# New function to add categories to the categories dictionary
+
+
+def add_category(category_name):
+    if category_name not in categories:
+        categories[category_name] = []
+
+# New function to set up the categories dropdown menu
+
+
+def setup_categories_dropdown(category_dropdown, selected_category):
+    category_dropdown["menu"].delete(0, "end")
+    for category in categories:
+        category_dropdown["menu"].add_command(
+            label=category, command=tk._setit(selected_category, category))
+
 
 def start_clipboard_thread():
     def check_clipboard():
@@ -38,15 +73,7 @@ def start_clipboard_thread():
             tmp_value = pyperclip.paste()
             if tmp_value != recent_value:
                 recent_value = tmp_value
-                command = detect_command(recent_value)
-                if command == "question":
-                    question = recent_value[1:]
-                    answer = ask_openai(question)
-                    pyperclip.copy(answer)
-                # TODO: ADD TO HISTORY
-                # if command is not None:
-                #     update_gui_history(
-                #         history_box, history_data, recent_value, answer, search_var)
+                clipboard_handler(recent_value)
             time.sleep(1)
 
     t = threading.Thread(target=check_clipboard)
@@ -76,7 +103,12 @@ def main():
     # TODO: CREATE PLUGINS MENU
     # TODO: CREATE DIFFERENT CATEGIRES
     # TODO: IMPROVE SEARCH MENU
+    global categories
     global history_box
+    global history_data
+    global search_var
+    global selected_category
+    global category_dropdown
     local_version = get_local_version()
     update_app(remote_url)
     settings = load_settings()
@@ -194,10 +226,17 @@ def main():
     selected_category = tk.StringVar()
     selected_category.set("General")
 
+    category_dropdown = ttk.OptionMenu(
+        main_frame, selected_category, *categories.keys())
+    category_dropdown.grid(row=0, column=3, sticky=(tk.W, tk.E))
+
     selected_category.trace("w", lambda *args: update_category_history())
     category_dropdown = ttk.OptionMenu(
         main_frame, selected_category, *categories.keys())
     category_dropdown.grid(row=0, column=3, sticky=(tk.W, tk.E))
+    add_category("Work")
+    add_category("Personal")
+    setup_categories_dropdown(category_dropdown, selected_category)
     root.bind('<Control-c>', copy_question_to_clipboard)
     start_clipboard_thread()
     root.mainloop()

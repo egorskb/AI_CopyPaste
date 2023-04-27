@@ -25,7 +25,7 @@ logging.basicConfig(
 def ask_openai(question):
     settings = load_settings()
     response = openai.Completion.create(
-        engine="text-davinci-002",
+        engine="text-davinci-003",
         prompt=f"{question}",
         temperature=settings["temperature"],
         max_tokens=settings["max_tokens"],

@@ -24,8 +24,8 @@ def load_settings():
             settings = json.load(f)
     except FileNotFoundError:
         default_settings = {
-            "temperature": 0.4,
-            "max_tokens": 50,
+            "temperature": 0.7,
+            "max_tokens": 256,
             "use_history": False,
             "api_key": "",
         }
