@@ -199,10 +199,10 @@ def main():
         main_frame, selected_category, *categories.keys())
     category_dropdown.grid(row=0, column=3, sticky=(tk.W, tk.E))
     root.bind('<Control-c>', copy_question_to_clipboard)
+    start_clipboard_thread()
     root.mainloop()
 
 
 if __name__ == "__main__":
     logging.info("Application started")
-    start_clipboard_thread()
     main()

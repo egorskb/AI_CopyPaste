@@ -14,7 +14,7 @@ REM Check if Python 3 is installed
 where python >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%Python 3 is not installed. Installing Python 3...%NC%
-    choco install python --params "/InstallDir:C:\Python" -y
+    choco install python3 --params "/InstallDir:C:\Python" -y
 )
 
 echo %GREEN%Checking virtual environment...%NC%
@@ -30,9 +30,9 @@ echo %GREEN%Virtual environment activated.%NC%
 
 if not exist "%requirements_path%" (
     echo %GREEN%Creating requirements.txt...%NC%
-    echo openai^=^=0.27.0 > %requirements_path%
+    echo openai^=^=0.31.0 > %requirements_path%
     echo pyperclip^=^=1.8.2 >> %requirements_path%
-    echo requests^=^=2.29.0 >> %requirements_path%
+    echo requests^=^=2.26.0 >> %requirements_path%
     echo %GREEN%requirements.txt created.%NC%
 )
 

@@ -4,6 +4,7 @@ logs/
 venv/
 .gitignore
 src/settings.json
+src/requirements.txt
 .vscode/
 developer_pack/
 **/.DS_Store
