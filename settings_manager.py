@@ -12,14 +12,6 @@ def get_api_key():
         return ""
 
 
-api_key = get_api_key()
-if not api_key:
-    print("Error: API key not found. Please add a valid API key in the settings.")
-else:
-    print("API key found.")
-    print("API key: " + api_key)
-
-
 def save_api_key(api_key):
     settings = load_settings()
     settings["api_key"] = api_key
@@ -74,6 +66,7 @@ def open_settings(root, update_settings_callback):
     use_history_var = tk.BooleanVar(value=settings["use_history"])
     ttk.Checkbutton(settings_frame, variable=use_history_var).grid(
         row=2, column=1)
+
     ttk.Label(settings_frame, text="API Key:").grid(
         row=3, column=0, sticky=tk.W)
     api_key_var = tk.StringVar(value=settings["api_key"])

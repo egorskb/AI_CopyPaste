@@ -6,3 +6,4 @@ venv/
 .gitignore
 settings.json
 .vscode/
+developer_pack/
