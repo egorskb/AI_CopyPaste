@@ -1,0 +1,1 @@
+Note: This script assumes that Python 3 and Chocolatey package manager are already installed on the Windows machine.
