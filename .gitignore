@@ -1,16 +1,8 @@
-# Ignore testing
 testing/
-
-# ignore python cache
 __pycache__/
-
-# Ignore the "logs" directory
 logs/
-
-# Ignore the "venv" directory
 venv/
-
-# Ignore useless files
-.DS_Store
+.DS_Store/
 .gitignore
 settings.json
+.vscode/
