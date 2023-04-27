@@ -5,7 +5,7 @@ from tkinter import ttk
 
 def get_api_key():
     try:
-        with open("settings.json", "r") as f:
+        with open("src/settings.json", "r") as f:
             settings = json.load(f)
             return settings.get("api_key", "")
     except FileNotFoundError:
@@ -20,7 +20,7 @@ def save_api_key(api_key):
 
 def load_settings():
     try:
-        with open("settings.json", "r") as f:
+        with open("src/settings.json", "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
         default_settings = {
@@ -35,7 +35,7 @@ def load_settings():
 
 
 def save_settings_to_file(settings):
-    with open("settings.json", "w") as f:
+    with open("src/settings.json", "w") as f:
         json.dump(settings, f, indent=4)
 
 

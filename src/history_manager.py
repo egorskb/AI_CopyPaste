@@ -2,7 +2,7 @@ import os
 import logging
 import openai
 from settings_manager import get_api_key, load_settings
-
+import pyperclip
 
 openai.api_key = f"{get_api_key()}"
 
@@ -34,6 +34,7 @@ def ask_openai(question):
         presence_penalty=0,
     )
     answer = response.choices[0].text.strip()
+    pyperclip.copy(answer)
     break_line = "=" * 40
     print(break_line)
     logging.info(f"Question: {question}")

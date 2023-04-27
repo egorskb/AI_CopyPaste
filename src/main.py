@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
+from local_version import get_local_version
 from autoupdater import remote_url
+import threading
+import pyperclip
+import logging
+import time
 from ai_clipboard import (
     update_gui_history,
     clear_history,
@@ -20,15 +25,45 @@ import json
 from autoupdater import update_app
 
 
-def get_version():
-    with open('version.txt', 'r') as file:
-        version = file.readline().strip()
-    return version
+def detect_command(text):
+    if text.startswith("?"):
+        return "question"
+    return None
+
+
+def start_clipboard_thread():
+    def check_clipboard():
+        recent_value = ""
+        while True:
+            tmp_value = pyperclip.paste()
+            if tmp_value != recent_value:
+                recent_value = tmp_value
+                command = detect_command(recent_value)
+                if command == "question":
+                    question = recent_value[1:]
+                    answer = ask_openai(question)
+                    pyperclip.copy(answer)
+                # TODO: ADD TO HISTORY
+                # if command is not None:
+                #     update_gui_history(
+                #         history_box, history_data, recent_value, answer, search_var)
+            time.sleep(1)
+
+    t = threading.Thread(target=check_clipboard)
+    t.daemon = True
+    t.start()
+
+
+def copy_question_to_clipboard(event=None):
+    selected_text = history_box.get(tk.SEL_FIRST, tk.SEL_LAST)
+    if selected_text.startswith("Q: "):
+        question = selected_text[3:]
+        pyperclip.copy(question)
 
 
 def get_api_key():
     try:
-        with open("settings.json", "r") as f:
+        with open("src/settings.json", "r") as f:
             settings = json.load(f)
             return settings.get("api_key", "")
     except FileNotFoundError:
@@ -36,6 +71,13 @@ def get_api_key():
 
 
 def main():
+    # TODO: DIFFERENT THEMES
+    # TODO: CREATE A BOX WHERE WILL BE ALL COPY TEXTS
+    # TODO: CREATE PLUGINS MENU
+    # TODO: CREATE DIFFERENT CATEGIRES
+    # TODO: IMPROVE SEARCH MENU
+    global history_box
+    local_version = get_local_version()
     update_app(remote_url)
     settings = load_settings()
     api_key = get_api_key()
@@ -46,8 +88,29 @@ def main():
         print("API key: " + api_key)
 
     root = tk.Tk()
-    root.title(f"AI Clipboard v{get_version()}")
+    root.title(f"AI Clipboard v{local_version}")
     root.geometry("800x600")
+    root.resizable(False, False)  # Disables window resizing
+    root.attributes('-fullscreen', False)  # Disables fullscreen
+
+    # categories
+    categories = {
+        "General": []
+    }
+
+    # Menu Bar
+    menu_bar = tk.Menu(root)
+    root.config(menu=menu_bar)
+
+    def set_theme(theme):
+        pass  # Placeholder function, replace with your implementat
+
+    theme_menu = tk.Menu(menu_bar, tearoff=0)
+    theme_menu.add_command(
+        label="Light Mode", command=lambda: set_theme("light"))
+    theme_menu.add_command(
+        label="Dark Mode", command=lambda: set_theme("dark"))
+    menu_bar.add_cascade(label="Theme", menu=theme_menu)
 
     main_frame = ttk.Frame(root, padding="10")
     main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -84,6 +147,8 @@ def main():
     def ask_question_and_update_history():
         question = question_var.get()
         answer = ask_openai(question)
+        current_category = selected_category.get()
+        categories[current_category].append((question, answer))
         update_gui_history(history_box, history_data,
                            question, answer, search_var)
         question_var.set("")
@@ -120,8 +185,24 @@ def main():
     main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(2, weight=1)
 
+    def update_category_history():
+        current_category = selected_category.get()
+        history_data.clear()
+        history_data.extend(categories[current_category])
+        update_gui_history(history_box, history_data, "", "", search_var)
+
+    selected_category = tk.StringVar()
+    selected_category.set("General")
+
+    selected_category.trace("w", lambda *args: update_category_history())
+    category_dropdown = ttk.OptionMenu(
+        main_frame, selected_category, *categories.keys())
+    category_dropdown.grid(row=0, column=3, sticky=(tk.W, tk.E))
+    root.bind('<Control-c>', copy_question_to_clipboard)
     root.mainloop()
 
 
 if __name__ == "__main__":
+    logging.info("Application started")
+    start_clipboard_thread()
     main()

@@ -4,11 +4,7 @@ import requests
 import zipfile
 import shutil
 from urllib.parse import urljoin
-
-
-def get_local_version():
-    with open("version.txt", "r") as f:
-        return f.read().strip()
+from local_version import get_local_version
 
 
 def get_remote_version(url):
@@ -40,7 +36,7 @@ def update_app(url):
     if local_version != remote_version:
         print("Updating...")
         download_and_extract_update(url)
-        with open("version.txt", "w") as f:
+        with open("src/version.txt", "w") as f:
             f.write(remote_version)
         print("Update complete. Restarting...")
         os.execl(sys.executable, sys.executable, *sys.argv)
@@ -48,5 +44,5 @@ def update_app(url):
         print("Already up to date.")
 
 
-remote_url = "https://raw.githubusercontent.com/egorskalozub/AI_CopyPaste/main/"
+remote_url = "https://raw.githubusercontent.com/egorskalozub/AI_CopyPaste/main/src"
 update_app(remote_url)

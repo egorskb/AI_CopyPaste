@@ -2,8 +2,8 @@ testing/
 __pycache__/
 logs/
 venv/
-.DS_Store/
 .gitignore
-settings.json
+src/settings.json
 .vscode/
 developer_pack/
+**/.DS_Store

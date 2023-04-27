@@ -1,37 +1,59 @@
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
 
-REM Define color codes
-set GREEN=[0;32m
-set RED=[0;31m
-set NC=[0m
-
-set venv_path=./venv
+set VENV_PATH=./src/venv
+set REQUIREMENTS_PATH=./src/requirements.txt
 
 REM Check if Python 3 is installed
-where python >nul 2>nul || (
-  echo !RED!Error: Python 3 is not installed.!NC!
-  exit /b 1
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo Python 3 is not installed. Installing Python 3...
+    choco install python
 )
 
-echo !GREEN!Checking virtual environment...!NC!
-if not exist %venv_path% (
-    echo !RED!Virtual environment not found. Creating it now...!NC!
-    python -m venv venv || (echo !RED!Error creating virtual environment.!NC! & exit /b 1)
-    echo !GREEN!Virtual environment created.!NC!
+REM Check if virtual environment exists
+if not exist %VENV_PATH% (
+    echo Virtual environment not found. Creating it now...
+    python -m venv %VENV_PATH% || (
+        echo Error creating virtual environment.
+        exit /b 1
+    )
+    echo Virtual environment created.
 )
 
-echo !GREEN!Activating virtual environment...!NC!
-call %venv_path%\Scripts\activate.bat || (echo !RED!Error activating virtual environment.!NC! & exit /b 1)
-echo !GREEN!Virtual environment activated.!NC!
+REM Activate virtual environment
+call %VENV_PATH%\Scripts\activate.bat || (
+    echo Error activating virtual environment.
+    exit /b 1
+)
+echo Virtual environment activated.
 
-echo !GREEN!Installing required packages...!NC!
-pip install -r requirements.txt || (echo !RED!Error installing required packages.!NC! & exit /b 1)
-echo !GREEN!Packages installed.!NC!
+REM Check if requirements file exists
+if not exist %REQUIREMENTS_PATH% (
+    echo Creating requirements.txt...
+    echo openai==0.27.0 > %REQUIREMENTS_PATH%
+    echo pyperclip==1.8.2 >> %REQUIREMENTS_PATH%
+    echo requirements.txt created.
+)
 
-echo !GREEN!Running the main script...!NC!
-python main.py || (echo !RED!Error running main script.!NC! & exit /b 1)
+REM Install required packages
+echo Installing required packages...
+pip install -r src/requirements.txt || (
+    echo Error installing required packages.
+    exit /b 1
+)
+echo Packages installed.
 
-echo !GREEN!Deactivating virtual environment...!NC!
-call %venv_path%\Scripts\deactivate.bat || (echo !RED!Error deactivating virtual environment.!NC! & exit /b 1)
-echo !GREEN!Virtual environment deactivated.!NC!
+REM Run the main script
+echo Running the main script...
+python src/main.py || (
+    echo Error running main script.
+    exit /b 1
+)
+
+REM Deactivate virtual environment
+echo Deactivating virtual environment...
+call %VENV_PATH%\Scripts\deactivate.bat || (
+    echo Error deactivating virtual environment.
+    exit /b 1
+)
+echo Virtual environment deactivated.
