@@ -1,3 +1,0 @@
-openai==0.27.0
-pyperclip==1.8.2
-Requests==2.29.0
