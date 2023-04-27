@@ -48,6 +48,5 @@ def update_app(url):
         print("Already up to date.")
 
 
-if __name__ == "__main__":
-    remote_url = "https://raw.githubusercontent.com/egorskalozub/AI_CopyPaste/main/"
-    update_app(remote_url)
+remote_url = "https://raw.githubusercontent.com/egorskalozub/AI_CopyPaste/main/"
+update_app(remote_url)
