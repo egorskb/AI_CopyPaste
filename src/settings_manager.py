@@ -3,6 +3,14 @@ import tkinter as tk
 from tkinter import ttk
 
 
+
+
+def initialize_settings(set_theme_func):
+    settings = load_settings()
+    current_theme = settings.get("theme", "light")
+    set_theme_func(current_theme)
+    
+
 def get_api_key():
     try:
         with open("src/settings.json", "r") as f:
@@ -28,9 +36,12 @@ def load_settings():
             "max_tokens": 256,
             "use_history": False,
             "api_key": "",
+            "theme": "light"
         }
         save_settings_to_file(default_settings)
+        current_theme = settings.get("theme", "light")
         settings = default_settings
+        set_theme(current_theme)
     return settings
 
 
@@ -41,7 +52,6 @@ def save_settings_to_file(settings):
 
 def open_settings(root, update_settings_callback):
     settings = load_settings()
-
     settings_window = tk.Toplevel(root)
     settings_window.title("Settings")
     settings_window.resizable(False, False)

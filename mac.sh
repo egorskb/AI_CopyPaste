@@ -39,6 +39,7 @@ if [[ ! -f "$requirements_path" ]]; then
     echo "openai==0.27.0" > $requirements_path
     echo "pyperclip==1.8.2" >> $requirements_path
     echo "Requests==2.29.0" >> $requirements_path
+    echo "PyQt6==6.5.0" >> $requirements_path
     echo -e "${GREEN}requirements.txt created.${NC}"
 fi
 

@@ -1,247 +1,196 @@
-import tkinter as tk
-from tkinter import ttk, filedialog
+from settings_manager import (open_settings, load_settings, save_api_key)
+from history_manager import (update_gui_history, clear_history, filter_history, export_history, import_history,
+                             copy_question_to_clipboard)
+from ai_implementation import ask_openai
+from autoupdater import remote_url, update_app
 from local_version import get_local_version
-from autoupdater import remote_url
-import threading
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QLineEdit,
+                             QTextEdit, QPushButton, QComboBox, QMenu, QMenuBar, QStatusBar, QFileDialog)
 import pyperclip
-import logging
-import time
-from ai_clipboard import (
-    update_gui_history,
-    clear_history,
-    filter_history,
-    export_history,
-    import_history,
-    copy_question_to_clipboard,
-)
-from history_manager import ask_openai
-from settings_manager import (
-    open_settings,
-    load_settings,
-    save_api_key,
-)
+import sys
 import json
-
-from autoupdater import update_app
-
-
-def detect_command(text):
-    if text.startswith("?"):
-        return "question"
-    return None
-
-# New function to handle clipboard updates in the background
+import threading
+import time
+from PyQt6.QtGui import QAction
 
 
-def clipboard_handler(clipboard_data):
-    command = detect_command(clipboard_data)
-    if command == "question":
-        question = clipboard_data[1:]
+class MainWindow(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+
+        self.init_ui()
+
+    def init_ui(self):
+        # UI setup
+        self.setWindowTitle(f"AI Clipboard v{get_local_version()}")
+        self.setGeometry(100, 100, 800, 600)
+
+        # Main widget
+        main_widget = QWidget()
+        self.setCentralWidget(main_widget)
+
+        layout = QVBoxLayout()
+        main_widget.setLayout(layout)
+
+        # Menu
+        menu_bar = self.menuBar()
+
+        theme_menu = QMenu("Theme", self)
+        theme_menu.addAction("Light Mode", self.set_light_theme)
+        theme_menu.addAction("Dark Mode", self.set_dark_theme)
+        menu_bar.addMenu(theme_menu)
+
+        # Search
+        search_label = QLabel("Search:")
+        layout.addWidget(search_label)
+
+        self.search_line_edit = QLineEdit()
+        layout.addWidget(self.search_line_edit)
+        self.search_line_edit.textChanged.connect(self.filter_history)
+
+        # Question
+        question_label = QLabel("Question:")
+        layout.addWidget(question_label)
+
+        self.question_line_edit = QLineEdit()
+        layout.addWidget(self.question_line_edit)
+
+        ask_button = QPushButton("Ask", self)
+        layout.addWidget(ask_button)
+        ask_button.clicked.connect(self.ask_question_and_update_history)
+
+        # History
+        history_label = QLabel("History:")
+        layout.addWidget(history_label)
+
+        self.history_text_edit = QTextEdit()
+        layout.addWidget(self.history_text_edit)
+        self.history_text_edit.setReadOnly(True)
+
+        copy_button = QPushButton("Copy Question")
+        layout.addWidget(copy_button)
+        copy_button.clicked.connect(self.copy_question_to_clipboard)
+
+        clear_button = QPushButton("Clear History")
+        layout.addWidget(clear_button)
+        clear_button.clicked.connect(self.clear_history)
+
+        import_button = QPushButton("Import History")
+        layout.addWidget(import_button)
+        import_button.clicked.connect(self.import_history)
+
+        export_button = QPushButton("Export History")
+        layout.addWidget(export_button)
+        export_button.clicked.connect(self.export_history)
+
+        settings_button = QPushButton("Settings")
+        layout.addWidget(settings_button)
+        settings_button.clicked.connect(self.open_settings)
+
+        quit_button = QPushButton("Quit")
+        layout.addWidget(quit_button)
+        quit_button.clicked.connect(self.close)
+
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+
+        # Categories
+        self.categories = {
+            "General": []
+        }
+
+        self.selected_category = QComboBox()
+        layout.addWidget(self.selected_category)
+
+        for category in self.categories:
+            self.selected_category.addItem(category)
+
+        self.selected_category.currentTextChanged.connect(
+            self.update_category_history)
+
+        self.history_data = []
+        self.search_var = ""
+
+        # Start clipboard thread
+        self.start_clipboard_thread()
+
+    def ask_question_and_update_history(self):
+        question = self.question_line_edit.text()
         answer = ask_openai(question)
-        pyperclip.copy(answer)
-        add_to_history(question, answer)
+        current_category = self.selected_category.currentText()
+        self.update_gui_history(answer, current_category)
+        self.question_line_edit.clear()
 
-# New function to add clipboard data to the history
+    def start_clipboard_thread(self):
+        def clipboard_thread():
+            while True:
+                time.sleep(1)
+                clipboard_data = pyperclip.paste()
+                if clipboard_data != self.search_var:
+                    self.search_var = clipboard_data
+                    self.search_line_edit.setText(clipboard_data)
 
+        threading.Thread(target=clipboard_thread, daemon=True).start()
 
-def add_to_history(question, answer):
-    current_category = selected_category.get()
-    categories[current_category].append((question, answer))
-    update_gui_history(history_box, history_data, question, answer, search_var)
+    def filter_history(self):
+        self.search_var = self.search_line_edit.text()
+        self.update_category_history()
 
-# New function to add categories to the categories dictionary
+    def update_category_history(self):
+        category = self.selected_category.currentText()
+        if category in self.categories:
+            history_data = filter_history(
+                self.categories[category], self.search_var)
+            self.history_text_edit.setPlainText(history_data)
 
+    def set_light_theme(self):
+        pass  # Implement the light theme
 
-def add_category(category_name):
-    if category_name not in categories:
-        categories[category_name] = []
+    def set_dark_theme(self):
+        pass  # Implement the dark theme
 
-# New function to set up the categories dropdown menu
+    def clear_history(self):
+        current_category = self.selected_category.currentText()
+        self.categories[current_category] = []
+        self.history_text_edit.clear()
 
+    def import_history(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+        file_name, _ = QFileDialog.getOpenFileName(
+            self, "Import History", "", "JSON Files (*.json)", options=options)
+        if file_name:
+            self.categories = import_history(file_name)
+            self.update_category_history()
 
-def setup_categories_dropdown(category_dropdown, selected_category):
-    category_dropdown["menu"].delete(0, "end")
-    for category in categories:
-        category_dropdown["menu"].add_command(
-            label=category, command=tk._setit(selected_category, category))
+    def export_history(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.Writable
+        file_name, _ = QFileDialog.getSaveFileName(
+            self, "Export History", "", "JSON Files (*.json)", options=options)
+        if file_name:
+            export_history(self.categories, file_name)
 
+    def open_settings(self):
+        api_key, ok = open_settings(self)
+        if ok:
+            save_api_key(api_key)
 
-def start_clipboard_thread():
-    def check_clipboard():
-        recent_value = ""
-        while True:
-            tmp_value = pyperclip.paste()
-            if tmp_value != recent_value:
-                recent_value = tmp_value
-                clipboard_handler(recent_value)
-            time.sleep(1)
+    def copy_question_to_clipboard(self):
+        copy_question_to_clipboard(self.history_text_edit.toPlainText())
 
-    t = threading.Thread(target=check_clipboard)
-    t.daemon = True
-    t.start()
+    def update_gui_history(self, answer, category):
+        if category not in self.categories:
+            self.categories[category] = []
 
-
-def copy_question_to_clipboard(event=None):
-    selected_text = history_box.get(tk.SEL_FIRST, tk.SEL_LAST)
-    if selected_text.startswith("Q: "):
-        question = selected_text[3:]
-        pyperclip.copy(question)
-
-
-def get_api_key():
-    try:
-        with open("src/settings.json", "r") as f:
-            settings = json.load(f)
-            return settings.get("api_key", "")
-    except FileNotFoundError:
-        return ""
-
-
-def main():
-    # TODO: DIFFERENT THEMES
-    # TODO: CREATE A BOX WHERE WILL BE ALL COPY TEXTS
-    # TODO: CREATE PLUGINS MENU
-    # TODO: CREATE DIFFERENT CATEGIRES
-    # TODO: IMPROVE SEARCH MENU
-    global categories
-    global history_box
-    global history_data
-    global search_var
-    global selected_category
-    global category_dropdown
-    local_version = get_local_version()
-    update_app(remote_url)
-    settings = load_settings()
-    api_key = get_api_key()
-    if not api_key:
-        print("Error: API key not found. Please add a valid API key in the settings.")
-    else:
-        print("API key found.")
-        print("API key: " + api_key)
-
-    root = tk.Tk()
-    root.title(f"AI Clipboard v{local_version}")
-    root.geometry("800x600")
-    root.resizable(False, False)  # Disables window resizing
-    root.attributes('-fullscreen', False)  # Disables fullscreen
-
-    # categories
-    categories = {
-        "General": []
-    }
-
-    # Menu Bar
-    menu_bar = tk.Menu(root)
-    root.config(menu=menu_bar)
-
-    def set_theme(theme):
-        pass  # Placeholder function, replace with your implementat
-
-    theme_menu = tk.Menu(menu_bar, tearoff=0)
-    theme_menu.add_command(
-        label="Light Mode", command=lambda: set_theme("light"))
-    theme_menu.add_command(
-        label="Dark Mode", command=lambda: set_theme("dark"))
-    menu_bar.add_cascade(label="Theme", menu=theme_menu)
-
-    main_frame = ttk.Frame(root, padding="10")
-    main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-
-    search_label = ttk.Label(main_frame, text="Search:")
-    search_label.grid(row=0, column=0, sticky=tk.W)
-    search_var = tk.StringVar()
-    search_entry = ttk.Entry(main_frame, textvariable=search_var)
-    search_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(5, 0))
-    search_entry.bind("<KeyRelease>", lambda event: filter_history(
-        history_box, history_data, search_var, event))
-
-    question_label = ttk.Label(main_frame, text="Question:")
-    question_label.grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
-    question_var = tk.StringVar()
-    question_entry = ttk.Entry(main_frame, textvariable=question_var)
-    question_entry.grid(row=1, column=1, sticky=(
-        tk.W, tk.E), padx=(5, 0), pady=(10, 0))
-    question_entry.focus()
-
-    history_label = ttk.Label(main_frame, text="History:")
-    history_label.grid(row=2, column=0, sticky=tk.W, pady=(10, 0))
-    history_data = []
-    history_box = tk.Text(main_frame, wrap=tk.WORD,
-                          width=50, height=15, state='disabled')
-    history_box.grid(row=2, column=1, sticky=(
-        tk.W, tk.E, tk.N, tk.S), padx=(5, 0), pady=(10, 0))
-
-    history_scrollbar = ttk.Scrollbar(
-        main_frame, orient="vertical", command=history_box.yview)
-    history_scrollbar.grid(row=2, column=2, sticky=(tk.N, tk.S), pady=(10, 0))
-    history_box["yscrollcommand"] = history_scrollbar.set
-
-    def ask_question_and_update_history():
-        question = question_var.get()
-        answer = ask_openai(question)
-        current_category = selected_category.get()
-        categories[current_category].append((question, answer))
-        update_gui_history(history_box, history_data,
-                           question, answer, search_var)
-        question_var.set("")
-
-    ask_button = ttk.Button(main_frame, text="Ask",
-                            command=ask_question_and_update_history)
-    ask_button.grid(row=1, column=2, padx=(5, 0), pady=(10, 0))
-
-    copy_button = ttk.Button(main_frame, text="Copy Question",
-                             command=lambda: copy_question_to_clipboard(history_box))
-    copy_button.grid(row=3, column=0, pady=(10, 0))
-
-    clear_button = ttk.Button(main_frame, text="Clear History",
-                              command=lambda: clear_history(history_box, history_data))
-    clear_button.grid(row=3, column=1, pady=(10, 0))
-
-    import_button = ttk.Button(main_frame, text="Import History",
-                               command=lambda: import_history(history_box, history_data))
-    import_button.grid(row=4, column=0, pady=(10, 0))
-
-    export_button = ttk.Button(
-        main_frame, text="Export History", command=lambda: export_history(history_data))
-    export_button.grid(row=4, column=1, pady=(10, 0))
-
-    settings_button = ttk.Button(
-        main_frame, text="Settings", command=lambda: open_settings(root, lambda: None))
-    settings_button.grid(row=5, column=0, pady=(10, 0))
-
-    quit_button = ttk.Button(main_frame, text="Quit", command=root.quit)
-    quit_button.grid(row=5, column=1, pady=(10, 0))
-
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
-    main_frame.columnconfigure(1, weight=1)
-    main_frame.rowconfigure(2, weight=1)
-
-    def update_category_history():
-        current_category = selected_category.get()
-        history_data.clear()
-        history_data.extend(categories[current_category])
-        update_gui_history(history_box, history_data, "", "", search_var)
-
-    selected_category = tk.StringVar()
-    selected_category.set("General")
-
-    category_dropdown = ttk.OptionMenu(
-        main_frame, selected_category, *categories.keys())
-    category_dropdown.grid(row=0, column=3, sticky=(tk.W, tk.E))
-
-    selected_category.trace("w", lambda *args: update_category_history())
-    category_dropdown = ttk.OptionMenu(
-        main_frame, selected_category, *categories.keys())
-    category_dropdown.grid(row=0, column=3, sticky=(tk.W, tk.E))
-    add_category("Work")
-    add_category("Personal")
-    setup_categories_dropdown(category_dropdown, selected_category)
-    root.bind('<Control-c>', copy_question_to_clipboard)
-    start_clipboard_thread()
-    root.mainloop()
+        update_gui_history(self.categories[category], answer)
+        self.update_category_history()
 
 
 if __name__ == "__main__":
-    logging.info("Application started")
-    main()
+    app = QApplication(sys.argv)
+    main_window = MainWindow()
+    main_window.show()
+    sys.exit(app.exec())
