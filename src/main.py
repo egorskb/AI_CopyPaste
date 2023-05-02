@@ -14,7 +14,13 @@ from PyQt6.QtWidgets import (
     QMenu, QPlainTextEdit, QPushButton, QStatusBar, QTextEdit, QVBoxLayout,
     QWidget, QMessageBox, QSizePolicy, QFileDialog
 )
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import spacy
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.metrics.pairwise import cosine_similarity
 
+import re
 # Import other modules
 from autoupdater import remote_url, update_app  # Auto-updating functionality
 from history_manager import clear_history, export_history, filter_history_qt, import_history, update_gui_history  # History management
@@ -132,6 +138,10 @@ class MainWindow(QMainWindow):
         about_button = QPushButton("About")
         layout.addWidget(about_button)
         about_button.clicked.connect(self.show_about_dialog)
+
+        # Brand labelling
+        brand_label = QLabel("This program was made for ControllQ-workspace.")
+        layout.addWidget(brand_label)
 
         # Add a status bar to the bottom of the window
         self.status_bar = QStatusBar()
@@ -300,6 +310,29 @@ class MainWindow(QMainWindow):
         # Opens a settings window/canvas and passes in the calling object and update_settings method.
         open_settings(self, self.update_settings)
 
+    # def smart_search(query, items):
+    #     query = process_text(query)
+    #     processed_items = [process_text(item) for item in items]
+    #     all_texts = [query] + processed_items
+    #     tfidf_matrix = vectorizer.fit_transform(all_texts)
+    #     similarity_scores = cosine_similarity(
+    #         tfidf_matrix[0:1], tfidf_matrix[1:])
+    #     sorted_indices = np.argsort(-similarity_scores).flatten()
+    #     return [items[i] for i in sorted_indices]
+
+    # def process_text(text):
+    #     doc = nlp(text)
+    #     tokens = [
+    #         token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
+    #     return ' '.join(tokens)
+
+    # def extract_numbers(text):
+    #     return [float(num) for num in re.findall(r'[-+]?\d*\.\d+|\d+', text)]
+
+    # def create_bar_chart(data, labels):
+    #     plt.bar(labels, data)
+    #     plt.show()
+
 #################################### clipboard functions ###################################
 
     def detect_command(self, text):
@@ -337,6 +370,9 @@ class MainWindow(QMainWindow):
         t.start()
 #################################### clipboard functions ####################################
 
+
+# nlp = spacy.load("en_core_web_sm")
+# vectorizer = TfidfVectorizer()
 
 app = QApplication(sys.argv)
 

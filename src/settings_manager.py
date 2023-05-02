@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QDialog, QLabel, QLineEdit, QVBoxLayout, QDoubleSpin
 # Define the name of the settings file.
 SETTINGS_FILE = "src/settings.json"
 
+
 def initialize_settings(set_theme_func):
     """
     Initializes the application settings by loading the current theme from the settings file,
@@ -15,6 +16,7 @@ def initialize_settings(set_theme_func):
     current_theme = settings["theme"]
     # Apply the current theme to the UI using the provided function.
     set_theme_func(current_theme)
+
 
 def get_api_key():
     """
@@ -28,6 +30,7 @@ def get_api_key():
     except FileNotFoundError:
         return ""
 
+
 def save_api_key(api_key):
     """
     Saves the provided API key to the settings file.
@@ -38,6 +41,7 @@ def save_api_key(api_key):
     settings["api_key"] = api_key
     # Save the updated settings to the file.
     save_settings_to_file(settings)
+
 
 def load_settings():
     """
@@ -61,7 +65,6 @@ def load_settings():
         # Return the default settings object.
         settings = default_settings
     return settings
-
 
 
 def save_settings_to_file(settings):
@@ -93,9 +96,12 @@ def open_settings(parent, update_settings_callback):
     layout.addWidget(max_tokens_input)
 
     use_history_label = QLabel("Use history in prompt:")
+    warning = QLabel("Not working yet")
+    warning.setStyleSheet("font-size: 10px; color: red ; font-weight: bold")
     use_history_checkbox = QCheckBox()
     use_history_checkbox.setChecked(settings["use_history"])
     layout.addWidget(use_history_label)
+    layout.addWidget(warning)
     layout.addWidget(use_history_checkbox)
 
     # Add theme setting
