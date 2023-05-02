@@ -1,97 +1,141 @@
 import json
-import tkinter as tk
-from tkinter import ttk
+from PyQt6.QtWidgets import QDialog, QLabel, QLineEdit, QVBoxLayout, QDoubleSpinBox, QCheckBox, QPushButton, QSpinBox, QRadioButton
 
-
-
+# Define the name of the settings file.
+SETTINGS_FILE = "settings.json"
 
 def initialize_settings(set_theme_func):
+    """
+    Initializes the application settings by loading the current theme from the settings file,
+    and applying it to the UI using the provided set_theme function.
+    """
+    # Load the settings from the file.
     settings = load_settings()
-    current_theme = settings.get("theme", "light")
+    # Get the current theme from the loaded settings.
+    current_theme = settings["theme"]
+    # Apply the current theme to the UI using the provided function.
     set_theme_func(current_theme)
-    
 
 def get_api_key():
+    """
+    Reads the API key from the settings file, and returns it stripped of leading/trailing whitespace.
+    If the file is not found, returns an empty string.
+    """
     try:
-        with open("src/settings.json", "r") as f:
+        with open(SETTINGS_FILE, "r") as f:
             settings = json.load(f)
-            return settings.get("api_key", "")
+            return settings.get("api_key", "").strip()
     except FileNotFoundError:
         return ""
 
-
 def save_api_key(api_key):
+    """
+    Saves the provided API key to the settings file.
+    """
+    # Load the current settings from the file.
     settings = load_settings()
+    # Update the API key value in the settings.
     settings["api_key"] = api_key
+    # Save the updated settings to the file.
     save_settings_to_file(settings)
 
-
 def load_settings():
+    """
+    Loads the current application settings from the settings file.
+    If the file is not found, creates a default settings object, saves it to the file, and returns it.
+    """
     try:
-        with open("src/settings.json", "r") as f:
+        with open(SETTINGS_FILE, "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
+        # If the file is not found, create a default settings object.
         default_settings = {
-            "temperature": 0.7,
+            "temperature": 0.5,
             "max_tokens": 256,
             "use_history": False,
             "api_key": "",
             "theme": "light"
         }
+        # Save the default settings to the file.
         save_settings_to_file(default_settings)
-        current_theme = settings.get("theme", "light")
+        # Return the default settings object.
         settings = default_settings
-        set_theme(current_theme)
     return settings
 
 
+
 def save_settings_to_file(settings):
-    with open("src/settings.json", "w") as f:
+    with open(SETTINGS_FILE, "w") as f:
         json.dump(settings, f, indent=4)
 
 
-def open_settings(root, update_settings_callback):
+def open_settings(parent, update_settings_callback):
     settings = load_settings()
-    settings_window = tk.Toplevel(root)
-    settings_window.title("Settings")
-    settings_window.resizable(False, False)
+    settings_window = QDialog(parent)
+    settings_window.setWindowTitle("Settings")
+    settings_window.setFixedSize(250, 400)
 
-    settings_frame = ttk.Frame(settings_window, padding="10")
-    settings_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+    layout = QVBoxLayout()
 
-    ttk.Label(settings_frame, text="Temperature:").grid(
-        row=0, column=0, sticky=tk.W)
-    temperature_var = tk.DoubleVar(value=settings["temperature"])
-    ttk.Entry(settings_frame, textvariable=temperature_var).grid(
-        row=0, column=1)
+    temperature_label = QLabel("Temperature:")
+    temperature_input = QDoubleSpinBox()
+    temperature_input.setValue(settings["temperature"])
+    temperature_input.setSingleStep(0.1)
+    temperature_input.setRange(0, 1)
+    layout.addWidget(temperature_label)
+    layout.addWidget(temperature_input)
 
-    ttk.Label(settings_frame, text="Max Tokens:").grid(
-        row=1, column=0, sticky=tk.W)
-    max_tokens_var = tk.IntVar(value=settings["max_tokens"])
-    ttk.Entry(settings_frame, textvariable=max_tokens_var).grid(
-        row=1, column=1)
+    max_tokens_label = QLabel("Max Tokens:")
+    max_tokens_input = QSpinBox()
+    max_tokens_input.setValue(settings["max_tokens"])
+    max_tokens_input.setRange(1, 10000)
+    layout.addWidget(max_tokens_label)
+    layout.addWidget(max_tokens_input)
 
-    ttk.Label(settings_frame, text="Use history in prompt:").grid(
-        row=2, column=0, sticky=tk.W)
-    use_history_var = tk.BooleanVar(value=settings["use_history"])
-    ttk.Checkbutton(settings_frame, variable=use_history_var).grid(
-        row=2, column=1)
+    use_history_label = QLabel("Use history in prompt:")
+    use_history_checkbox = QCheckBox()
+    use_history_checkbox.setChecked(settings["use_history"])
+    layout.addWidget(use_history_label)
+    layout.addWidget(use_history_checkbox)
 
-    ttk.Label(settings_frame, text="API Key:").grid(
-        row=3, column=0, sticky=tk.W)
-    api_key_var = tk.StringVar(value=settings["api_key"])
-    ttk.Entry(settings_frame, textvariable=api_key_var).grid(
-        row=3, column=1)
+    # Add theme setting
+    theme_label = QLabel("Theme:")
+    layout.addWidget(theme_label)
+
+    light_theme_radio = QRadioButton("Light")
+    dark_theme_radio = QRadioButton("Dark")
+    if settings["theme"] == "light":
+        light_theme_radio.setChecked(True)
+    else:
+        dark_theme_radio.setChecked(True)
+    layout.addWidget(light_theme_radio)
+    layout.addWidget(dark_theme_radio)
+
+    api_key_label = QLabel("API Key:")
+    api_key_input = QLineEdit()
+    api_key_input.setText(settings["api_key"])
+    layout.addWidget(api_key_label)
+    layout.addWidget(api_key_input)
 
     def save_and_close():
-        settings["temperature"] = temperature_var.get()
-        settings["max_tokens"] = max_tokens_var.get()
-        settings["use_history"] = use_history_var.get()
+        settings["temperature"] = temperature_input.value()
+        settings["max_tokens"] = max_tokens_input.value()
+        settings["use_history"] = use_history_checkbox.isChecked()
+
+        if light_theme_radio.isChecked():
+            settings["theme"] = "light"
+        else:
+            settings["theme"] = "dark"
+
         save_settings_to_file(settings)
-        api_key = api_key_var.get()
+        api_key = api_key_input.text()
         save_api_key(api_key)
         update_settings_callback()
-        settings_window.destroy()
+        settings_window.accept()
 
-    ttk.Button(settings_frame, text="Save and Close",
-               command=save_and_close).grid(row=4, column=1, pady=10)
+    save_and_close_button = QPushButton("Save and Close")
+    save_and_close_button.clicked.connect(save_and_close)
+    layout.addWidget(save_and_close_button)
+
+    settings_window.setLayout(layout)
+    settings_window.exec()
