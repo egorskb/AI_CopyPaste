@@ -11,7 +11,6 @@ VERSION = 'version.txt'
 UPDATE = 'update.zip'
 
 
-
 def get_remote_version(url):
     version_url = url
     response = requests.get(version_url)
@@ -20,7 +19,8 @@ def get_remote_version(url):
 
 
 def download_and_extract_update(url, progress_callback):
-    update_url = "https://dl.dropboxusercontent.com/s/zmp9cipdigd4lw0/update.zip"  # Replace with your Dropbox direct download link
+    # Replace with your Dropbox direct download link
+    update_url = "https://dl.dropboxusercontent.com/s/zmp9cipdigd4lw0/update.zip"
     response = requests.get(update_url, stream=True)
     response.raise_for_status()
 
@@ -61,7 +61,7 @@ def update_app(url):
         window.show()
 
         def progress_callback(progress):
-            progress_bar.setValue(progress)
+            progress_bar.setValue(int(progress))
 
         print("Updating...")
         download_and_extract_update(url, progress_callback)
@@ -77,5 +77,3 @@ def update_app(url):
 
 remote_url = "https://dl.dropboxusercontent.com/s/jy6dosxieerasxe/version.txt"
 update_app(remote_url)
-
-
