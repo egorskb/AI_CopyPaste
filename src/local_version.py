@@ -3,7 +3,7 @@ VERSION = "version.txt"
 
 
 def get_local_version():
-    default_version = "3.0.0"
+    default_version = "4.0.0"
     try:
         with open(VERSION, "r") as f:
             return f.read().strip()
