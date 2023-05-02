@@ -22,11 +22,7 @@ AI CopyPaste is a simple desktop app for asking questions to an AI model (GPT-3)
 ## Usage
 - Install the required dependencies.
 - Make sure you have a valid OpenAI API key.
-- Run 
-"""python
-runner.py
-"""
-to launch the app.
+- Run runner.py to launch the app.
 - Provide your API key in the settings menu.
 - Type your question into the "Question" input field, and press "Ask" or "Enter" key.
 - The AI's response will be displayed in the "History" section.
