@@ -307,20 +307,19 @@ class MainWindow(QMainWindow):
 #################################### clipboard functions ####################################
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+app = QApplication(sys.argv)
 
-    main_window = MainWindow()
+main_window = MainWindow()
 
-    # Pass the main_window.update_settings function as an argument to initialize_settings
-    initialize_settings(main_window.update_settings)
+# Pass the main_window.update_settings function as an argument to initialize_settings
+initialize_settings(main_window.update_settings)
 
-    main_window.show()
+main_window.show()
 
-    # Check if API key is provided and show a warning message if not
-    api_key = get_api_key()
-    if not api_key:
-        QMessageBox.warning(main_window, "API Key Error",
-                            "No API key provided. Please provide an API key in the settings.")
+# Check if API key is provided and show a warning message if not
+api_key = get_api_key()
+if not api_key:
+    QMessageBox.warning(main_window, "API Key Error",
+                        "No API key provided. Please provide an API key in the settings.")
 
-    sys.exit(app.exec())
+sys.exit(app.exec())

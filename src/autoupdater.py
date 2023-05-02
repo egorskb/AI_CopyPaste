@@ -7,8 +7,8 @@ from urllib.parse import urljoin
 from local_version import get_local_version
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QLabel, QProgressBar, QWidget
 
-VERSION = 'version.txt'
-UPDATE = 'update.zip'
+VERSION = 'src/version.txt'
+UPDATE = 'src/update.zip'
 
 
 def get_remote_version(url):

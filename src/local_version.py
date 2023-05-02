@@ -1,5 +1,5 @@
 
-VERSION = "version.txt"
+VERSION = "src/version.txt"
 
 
 def get_local_version():

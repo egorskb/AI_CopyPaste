@@ -1,0 +1,7 @@
+{
+    "temperature": 0.5,
+    "max_tokens": 99,
+    "use_history": false,
+    "api_key": "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",
+    "theme": "light"
+}

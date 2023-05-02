@@ -2,7 +2,7 @@ import json
 from PyQt6.QtWidgets import QDialog, QLabel, QLineEdit, QVBoxLayout, QDoubleSpinBox, QCheckBox, QPushButton, QSpinBox, QRadioButton
 
 # Define the name of the settings file.
-SETTINGS_FILE = "settings.json"
+SETTINGS_FILE = "src/settings.json"
 
 def initialize_settings(set_theme_func):
     """
