@@ -45,9 +45,6 @@ class MainWindow(QMainWindow):
         # Call the init_ui() method to create the GUI
         self.init_ui()
 
-        # Set the GUI theme to Fusion
-        QApplication.setStyle(QStyleFactory.create("Fusion"))
-
         # Call the update_settings() method to initialize user settings
         self.update_settings()
         # Start the clipboard thread
@@ -62,7 +59,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("src/img/logo.png"))
         self.setWindowFlags(Qt.WindowType.WindowMinimizeButtonHint |
                             Qt.WindowType.WindowCloseButtonHint)
-
+        self.full_history = ""
         # Create a central widget and add it to the main window
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
@@ -106,9 +103,9 @@ class MainWindow(QMainWindow):
         self.history_text_edit.setReadOnly(True)
 
         # Add a "Copy Question" button to copy the current question to clipboard
-        copy_button = QPushButton("Copy Question")
-        layout.addWidget(copy_button)
-        copy_button.clicked.connect(self.copy_question_to_clipboard)
+        # copy_button = QPushButton("Copy Question")
+        # layout.addWidget(copy_button)
+        # copy_button.clicked.connect(self.copy_question_to_clipboard)
 
         # Add a "Clear History" button to delete the entire history
         clear_button = QPushButton("Clear History")
@@ -144,11 +141,40 @@ class MainWindow(QMainWindow):
         threading.Thread(target=self.check_for_updates, daemon=True).start()
 
     def set_light_theme(self):
-        # Set the application palette to the default light mode
-        app.setPalette(app.style().standardPalette())
+        # Define a custom light mode color palette with specified color values for various roles
+        light_palette = QPalette()
+        light_palette.setColor(QPalette.ColorRole.Window,
+                               QColor(255, 255, 255))
+        light_palette.setColor(
+            QPalette.ColorRole.WindowText, Qt.GlobalColor.black)
+        light_palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
+        light_palette.setColor(
+            QPalette.ColorRole.AlternateBase, QColor(240, 240, 240))
+        light_palette.setColor(
+            QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.black)
+        light_palette.setColor(
+            QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
+        light_palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.black)
+        light_palette.setColor(QPalette.ColorRole.Button,
+                               QColor(240, 240, 240))
+        light_palette.setColor(
+            QPalette.ColorRole.ButtonText, Qt.GlobalColor.black)
+        light_palette.setColor(
+            QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+        light_palette.setColor(QPalette.ColorRole.Link, QColor(0, 0, 255))
+        light_palette.setColor(QPalette.ColorRole.Highlight, QColor(0, 0, 255))
+        light_palette.setColor(
+            QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+
+        # Set the application palette to the custom light mode palette
+        app.setPalette(light_palette)
+
+        # Set the style back to the default style for your system
+        QApplication.setStyle(QApplication.style().objectName())
 
     def set_dark_theme(self):
         # Define a custom dark mode color palette with specified color values for various roles
+        QApplication.setStyle(QStyleFactory.create("Fusion"))
         dark_palette = QPalette()
         dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
         dark_palette.setColor(
@@ -175,8 +201,13 @@ class MainWindow(QMainWindow):
         app.setPalette(dark_palette)
 
     def update_search(self):
-        # Fetches the text of search_line_edit and updates the history_text_edit by filtering its content.
-        filter_history_qt(self.history_text_edit, self.search_line_edit.text())
+        search_text = self.search_line_edit.text()
+        if search_text == "":
+            self.history_text_edit.setPlainText(self.full_history)
+        else:
+            filtered_history = [entry for entry in self.full_history.split(
+                "\n\n") if search_text.lower() in entry.lower()]
+            self.history_text_edit.setPlainText("\n\n".join(filtered_history))
 
     def ask_question_and_update_history(self):
         # Fetches the question entered by the user and tries to get an answer via the OpenAI API. After successful authentication, it updates the history with the question and its corresponding answer.
